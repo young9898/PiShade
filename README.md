@@ -4,12 +4,13 @@ A motorized roller shade driven by a Raspberry Pi and a stepper motor, so a
 cheap pull-down shade opens and closes on solar time instead of on somebody
 remembering to pull the cord.
 
-Built in 2021 for a room with houseplants and an aquarium that wanted a
+Built in January 2019 for a room with houseplants and an aquarium that wanted a
 consistent daily light cycle. Nothing in it is specific to that room — it is a
-stepper turning a roller a fixed number of steps, twice a day.
+stepper turning a roller a fixed number of steps, twice a day. It picked up the
+name PiShade in 2021, when this repository was created.
 
-> **Note on the code:** the 2021 scripts were never committed. What is here is
-> a **reconstruction** written in 2026 from the original build notes. The step
+> **Note on the code:** the original scripts were never committed. What is here
+> is a **reconstruction** written in 2026 from the original build notes. The step
 > counts, the mechanism, and the cron schedule are the real ones. The code is
 > new, written against the documented library API rather than recovered.
 
@@ -103,7 +104,7 @@ fine.
 
 ## Attribution
 
-The 2021 original was adapted from the `StepperTest.py` example in
+The 2019 original was adapted from the `StepperTest.py` example in
 [adafruit/Adafruit-Motor-HAT-Python-Library](https://github.com/adafruit/Adafruit-Motor-HAT-Python-Library).
 That repository is archived and carries **no license file**, so none of its
 code is reproduced here — this implementation was written fresh against the

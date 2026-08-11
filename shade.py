@@ -4,7 +4,7 @@ SUBJECT: motion control for a roller-shade roller driven by a NEMA 17 stepper
 through an Adafruit Motor HAT; travel constants below were calibrated by
 counting steps against a mark on the roller, not by CAD.
 
-Reconstruction (2026) of a 2021 script that was not kept under version
+Reconstruction (2026) of a 2019 script that was not kept under version
 control. The step counts and the cron schedule are from the original notes;
 the code itself is new, written against the documented MotorKit API.
 """
