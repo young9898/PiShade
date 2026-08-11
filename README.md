@@ -88,6 +88,27 @@ shade rather than true sunrise.
 The 26 N·cm motor is generously sized for this. Shade torque is dominated by
 static friction at startup, not by the weight of the fabric.
 
+## Printed parts
+
+The three parts that were actually installed, in `models/`. These are the
+as-printed 2019 STLs, not a re-modelled set — there is no CAD source, only the
+mesh.
+
+| File | Size | Notes |
+|---|---|---|
+| `models/roller_hub.stl` | Ø31.3 × 21.8 mm | Drives the roller tube. Ø31.3 is a slip fit into a nominal 1¼ in (31.75 mm) tube; check yours with calipers, tubes vary. |
+| `models/motor_bracket.stl` | 66.4 × 57.5 × 55.2 mm | Carries the NEMA 17 at the driven end. |
+| `models/end_bracket.stl` | 81.4 × 61.8 × 45.4 mm | Idler end, opposite the motor. |
+
+The hub took four revisions to fit — Ø46.5, then 33.3, then 31.3 — which is the
+usual story of measuring a tube's inside diameter by eye and then by caliper.
+Printed in PLA at 0.2 mm layers, 20% infill; the hub was run at 0.08 mm and 80%
+because it is the part that transmits all the torque.
+
+Dimensions above were measured off the original toolpaths, not read from a
+model tree. Print one, check it against your own hardware before committing to
+the pair.
+
 ## Running it
 
 ```bash
