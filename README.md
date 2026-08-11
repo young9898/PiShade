@@ -1,15 +1,123 @@
 # PiShade
-Motorized sunshade using a Raspberry Pi
 
-I have an office in my basement with one window that allows sunlight into the room.  In my office, I have some houseplants and fish tanks that enjoy the sunlight.  In addition, during the day, it is difficult for passers-by to see through the window, while at night, it is a beaming globe that is viewable easily from a distance.  Therefore, there was a need for a pull-down shade to operate automatically, timed with the sun, both for security and light enhancement.  The primary components of the project are a Raspberry Pi, 3D printed parts, a stepper motor, and a cheap sunshade from Lowes.
+A motorized roller shade driven by a Raspberry Pi and a stepper motor, so a
+cheap pull-down shade opens and closes on solar time instead of on somebody
+remembering to pull the cord.
 
+Built in 2021 for a room with houseplants and an aquarium that wanted a
+consistent daily light cycle. Nothing in it is specific to that room — it is a
+stepper turning a roller a fixed number of steps, twice a day.
 
+> **Note on the code:** the 2021 scripts were never committed. What is here is
+> a **reconstruction** written in 2026 from the original build notes. The step
+> counts, the mechanism, and the cron schedule are the real ones. The code is
+> new, written against the documented library API rather than recovered.
 
-Parts List
-Sunshade 
-Stepper Motor
-Pi Hat
-Raspberry Pi
+## How it works
 
+A NEMA 17 stepper turns the shade's roller through an Adafruit Motor HAT on
+the Pi's GPIO header. Two cron jobs run the shade to its limit in each
+direction. There are no limit switches and no encoder — the travel is a step
+count that was calibrated once and has not needed to change.
 
-Write-up in progress
+## The calibration, and why it is 3200
+
+A NEMA 17 is 1.8° per step, so 200 full steps per revolution. The Adafruit
+library's `INTERLEAVE` style doubles the resolution to **400 steps per
+revolution**; `MICROSTEP` at the library's default of 8 gives 1600.
+
+The original calibration was done by taping a mark on the roller, stepping the
+motor, and counting until the mark came back around. That produced "about 428
+steps per rotation" — 7% over the true 400, which is exactly what counting to a
+visual mark with a little slop in the drive looks like.
+
+Full travel was then set at **3200 steps**, picked because it was a tidy round
+number. It happens to land on **exactly 8.0 revolutions**, and at the measured
+~1.6 inches of shade per revolution that is roughly **12.8 inches** of travel.
+A separate note in the build log — 4000 microsteps ≈ 4 inches — is the same
+geometry seen through the 1600-steps/rev microstep mode, and agrees.
+
+The lesson worth keeping: the sloppy hand calibration was 7% wrong, and it did
+not matter, because the number that got used was rounded to something the
+mechanism could absorb. Shades are forgiving. Do not build an encoder for this.
+
+### Interleave vs. microstep
+
+`INTERLEAVE` was chosen over `MICROSTEP` deliberately. Microstepping buys
+smoothness and resolution that a window shade has no use for, at the cost of
+4× the steps for the same travel and less torque per step. Interleave has
+enough torque to overcome the shade's static friction on startup, which is the
+only hard moment in the cycle.
+
+## Scheduling
+
+The original schedule was plain fixed-time cron:
+
+```cron
+0 17 * * * /usr/bin/python3 /home/pi/PiShade/motor_down.py
+0  8 * * * /usr/bin/python3 /home/pi/PiShade/motor_up.py
+```
+
+Fixed times drift badly against the actual sun across a year. The better
+version uses [`sunwait`](https://github.com/risacher/sunwait), which blocks
+until sunrise or sunset at a given latitude/longitude:
+
+```cron
+# Substitute your own coordinates. Two decimal places is plenty — the sun does
+# not care, and six decimals pins a residence to the centimetre.
+0 4 * * * sunwait wait rise 00.00N 000.00W && /usr/bin/python3 /home/pi/PiShade/motor_up.py
+0 15 * * * sunwait wait set 00.00N 000.00W && /usr/bin/python3 /home/pi/PiShade/motor_down.py
+```
+
+Check `sunwait`'s own docs for the exact argument form on your build; it also
+supports civil-twilight offsets, which are usually what you actually want for a
+shade rather than true sunrise.
+
+## Parts
+
+| Part | Notes |
+|---|---|
+| Raspberry Pi | Any model with the 40-pin header |
+| Adafruit Motor HAT (or DC+Stepper HAT) | Stepper terminal 1 |
+| STEPPERONLINE NEMA 17 stepper | 26 N·cm (36.8 oz-in), 12 V, 0.4 A/phase |
+| 12 V supply for the HAT | Separate from the Pi's own supply |
+| Roller shade | An inexpensive hardware-store pull-down |
+| 3D printed parts | Motor mount and a coupler to the roller tube |
+
+The 26 N·cm motor is generously sized for this. Shade torque is dominated by
+static friction at startup, not by the weight of the fabric.
+
+## Running it
+
+```bash
+pip3 install adafruit-circuitpython-motorkit
+python3 shade.py up --dry-run     # prints the move, touches no hardware
+python3 shade.py down             # full travel
+python3 shade.py up 400           # one revolution, for calibration
+```
+
+`shade.py` imports the Adafruit stack lazily, so `--dry-run` works on a laptop.
+The motor is released after every move — a stepper held at standstill draws
+full rated current and gets hot for no benefit, and friction holds the shade
+fine.
+
+## Attribution
+
+The 2021 original was adapted from the `StepperTest.py` example in
+[adafruit/Adafruit-Motor-HAT-Python-Library](https://github.com/adafruit/Adafruit-Motor-HAT-Python-Library).
+That repository is archived and carries **no license file**, so none of its
+code is reproduced here — this implementation was written fresh against the
+API. Credit for the original approach belongs to Adafruit.
+
+For anything new, use Adafruit's modern MIT-licensed replacement,
+[`adafruit-circuitpython-motorkit`](https://github.com/adafruit/Adafruit_CircuitPython_MotorKit),
+which is what the code here targets.
+
+## License
+
+MIT — see [LICENSE](LICENSE). Relicensed from GPL-3.0 in 2026; copies
+distributed under the earlier license remain under it.
+
+## Contact
+
+github@youngnetwork.org
