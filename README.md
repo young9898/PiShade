@@ -139,6 +139,9 @@ which is what the code here targets.
 
 MIT — see [LICENSE](LICENSE). Relicensed from GPL-3.0 in 2026; copies
 distributed under the earlier license remain under it.
+No strings beyond the license file, and no policing. If this saves you an
+afternoon, that is the whole point. Credit is appreciated and never demanded; if
+you build something better on top of it, that is the best outcome available.
 
 ## Contact
 
